@@ -1,0 +1,41 @@
+{
+    "name": "thebachtiarz-company/laravel-base-v2",
+    "description": "Base module for Laravel Project v2",
+    "type": "library",
+    "version": "0.0.1",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.20"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "TheBachtiarz\\Base\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "thebachtiarz-company",
+            "email": "thebachtiarz.company@gmail.com"
+        }
+    ],
+    "keywords": [
+        "laravel",
+        "thebachtiarz",
+        "base"
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TheBachtiarz\\Base\\ServiceProvider"
+            ]
+        }
+    },
+    "homepage": "https://github.com/thebachtiarz-company/laravel-base-v2",
+    "support": {
+        "issues": "https://github.com/thebachtiarz-company/laravel-base-v2/issues",
+        "source": "https://github.com/thebachtiarz-company/laravel-base-v2"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
