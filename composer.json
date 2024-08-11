@@ -2,7 +2,7 @@
     "name": "thebachtiarz-company/laravel-base-v2",
     "description": "Base module for Laravel Project v2",
     "type": "library",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.20"
@@ -27,7 +27,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "TheBachtiarz\\Base\\ServiceProvider"
+                "TheBachtiarz\\Base\\Providers\\ServiceProvider"
             ]
         }
     },
