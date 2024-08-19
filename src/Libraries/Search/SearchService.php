@@ -2,6 +2,10 @@
 
 namespace TheBachtiarz\Base\Libraries\Search;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Collection;
 use TheBachtiarz\Base\DTOs\Libraries\Search\InputFilterDTO;
 use TheBachtiarz\Base\DTOs\Libraries\Search\InputSortDTO;
 use TheBachtiarz\Base\DTOs\Libraries\Search\SimplePaginatePageInfoDTO;
@@ -12,10 +16,6 @@ use TheBachtiarz\Base\Helpers\General\ModelHelper;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInputInterface;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInterface;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaOutputInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Support\Collection;
 
 class SearchService implements SearchCriteriaInterface
 {
@@ -160,11 +160,26 @@ class SearchService implements SearchCriteriaInterface
      */
     protected function paginateProcess(): void
     {
+        $alreadyAllItems = false;
+        $currentPage = null;
+        $perPage = null;
+
         PROCESS_PAGINATE:
         $this->result = $this->builder->paginate(
-            perPage: $this->input->getPerPage(),
-            page: $this->input->getCurrentPage(),
+            perPage: $perPage ?? $this->input->getPerPage(),
+            page: $currentPage ?? $this->input->getCurrentPage(),
         );
+
+        if ($this->input->getIsAllItems()) {
+            if (!$alreadyAllItems) {
+                $this->input->setPerPage($this->result->total())->setPerPage(1);
+                $alreadyAllItems = true;
+                $currentPage = 1;
+                $perPage = $this->result->total() <= 500 ? $this->result->total() : 500;
+
+                goto PROCESS_PAGINATE;
+            }
+        }
 
         if (count($this->result->items()) < 1 && $this->input->getCurrentPage() > 1) {
             $this->input->setCurrentPage($this->result->lastPage());

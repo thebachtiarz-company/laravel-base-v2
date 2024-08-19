@@ -2,15 +2,15 @@
 
 namespace TheBachtiarz\Base\Interfaces\Libraries;
 
-use TheBachtiarz\Base\DTOs\Libraries\Search\InputSortDTO;
-use TheBachtiarz\Base\DTOs\Libraries\Search\InputFilterDTO;
-use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Collection;
+use TheBachtiarz\Base\DTOs\Libraries\Search\InputSortDTO;
+use TheBachtiarz\Base\DTOs\Libraries\Search\InputFilterDTO;
+use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 
 interface SearchCriteriaInputInterface
 {
@@ -60,6 +60,11 @@ interface SearchCriteriaInputInterface
      */
     public function getCurrentPage(): int;
 
+    /**
+     * Get is all items
+     */
+    public function getIsAllItems(): bool;
+
     // ? Setter Modules
 
     /**
@@ -107,4 +112,9 @@ interface SearchCriteriaInputInterface
      * Set the value of currentPage
      */
     public function setCurrentPage(int $currentPage): self;
+
+    /**
+     * Set is all items
+     */
+    public function setIsAllItems(bool $allItems = false): self;
 }

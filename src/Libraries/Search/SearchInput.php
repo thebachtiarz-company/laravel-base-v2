@@ -2,16 +2,16 @@
 
 namespace TheBachtiarz\Base\Libraries\Search;
 
-use TheBachtiarz\Base\DTOs\Libraries\Search\InputSortDTO;
-use TheBachtiarz\Base\DTOs\Libraries\Search\InputFilterDTO;
-use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInputInterface;
-use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Collection;
+use TheBachtiarz\Base\DTOs\Libraries\Search\InputSortDTO;
+use TheBachtiarz\Base\DTOs\Libraries\Search\InputFilterDTO;
+use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInputInterface;
+use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 
 class SearchInput implements SearchCriteriaInputInterface
 {
@@ -24,6 +24,7 @@ class SearchInput implements SearchCriteriaInputInterface
      * @param Closure|null $mapResult
      * @param integer $perPage
      * @param integer $currentPage
+     * @param boolean $isAllItems
      */
     public function __construct(
         protected ModelInterface|Model|null $model = null,
@@ -34,6 +35,7 @@ class SearchInput implements SearchCriteriaInputInterface
         protected ?Closure $mapResult = null,
         protected int $perPage = 15,
         protected int $currentPage = 1,
+        protected bool $isAllItems = false,
     ) {}
 
     // ? Public Methods
@@ -110,6 +112,14 @@ class SearchInput implements SearchCriteriaInputInterface
     public function getCurrentPage(): int
     {
         return $this->currentPage;
+    }
+
+    /**
+     * Get the value of isAllItems
+     */
+    public function getIsAllItems(): bool
+    {
+        return $this->isAllItems;
     }
 
     // ? Setter Modules
@@ -196,6 +206,16 @@ class SearchInput implements SearchCriteriaInputInterface
     public function setCurrentPage(int $currentPage): self
     {
         $this->currentPage = $currentPage;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of isAllItems
+     */
+    public function setIsAllItems(bool $isAllItems = false): self
+    {
+        $this->isAllItems = $isAllItems;
 
         return $this;
     }

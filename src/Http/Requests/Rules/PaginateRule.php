@@ -6,6 +6,7 @@ class PaginateRule extends AbstractRule
 {
     public const PER_PAGE = 'perPage';
     public const CURRENT_PAGE = 'currentPage';
+    public const ALL_ITEMS = 'allItems';
 
     #[\Override]
     public static function rules(): array
@@ -18,6 +19,10 @@ class PaginateRule extends AbstractRule
             self::CURRENT_PAGE => [
                 'nullable',
                 'numeric',
+            ],
+            self::ALL_ITEMS => [
+                'nullable',
+                'boolean',
             ],
         ];
     }
