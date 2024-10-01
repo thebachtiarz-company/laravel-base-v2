@@ -2,17 +2,18 @@
 
 namespace TheBachtiarz\Base\Repositories;
 
+use Exception;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Str;
 use TheBachtiarz\Base\Exceptions\BaseException;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInputInterface;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaInterface;
 use TheBachtiarz\Base\Interfaces\Libraries\SearchCriteriaOutputInterface;
 use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 use TheBachtiarz\Base\Interfaces\Repositories\RepositoryInterface;
-use Exception;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 abstract class AbstractRepository implements RepositoryInterface
 {
@@ -233,9 +234,7 @@ abstract class AbstractRepository implements RepositoryInterface
      */
     protected function modelEntityName(?string $name = null): static
     {
-        $array = explode(separator: '\\', string: $this->modelEntity::class);
-
-        $this->modelEntityName ??= $name ?? end(array: $array);
+        $this->modelEntityName ??= $name ?? Str::headline(class_basename($this->modelEntity::class));
 
         return $this;
     }
