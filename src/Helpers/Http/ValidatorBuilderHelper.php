@@ -9,15 +9,8 @@ use Illuminate\Support\Collection;
 
 class ValidatorBuilderHelper implements ValidatorBuilderInterface
 {
-    /**
-     * Validator builder result
-     */
     public ValidatorResultDTO $result;
 
-    /**
-     * @param Collection $rules
-     * @param Collection $messages
-     */
     public function __construct(
         private Collection $rules = new Collection(),
         private Collection $messages = new Collection(),
@@ -25,14 +18,6 @@ class ValidatorBuilderHelper implements ValidatorBuilderInterface
         $this->result = new ValidatorResultDTO(rules: [], messages: []);
     }
 
-    /**
-     * Add rule(s) in validator.
-     *
-     * Rule Example: ['input' => ['required','string']].
-     * Result Example: ['input' => 'required|string'].
-     *
-     * @param string|null $prefix Add prefix in attribute | Result Example: ['prefixinput' => 'required|string']
-     */
     public function addRules(AbstractRule $rule, ?string $prefix = null): self
     {
         foreach ($rule::rules() as $input => $validations) {
@@ -51,15 +36,6 @@ class ValidatorBuilderHelper implements ValidatorBuilderInterface
         return $this;
     }
 
-    /**
-     * Add rule(s) in nested prefix.
-     *
-     * Rule Example: ['input' => ['required','string']].
-     * Prefix Example: 'items'.
-     * Result Example: ['items.*.input' => 'required|string'].
-     *
-     * @param boolean $withRuleKey Add rule params in validator | false: ['items.*' => 'required|string']
-     */
     public function addNestedRules(AbstractRule $rule, string $prefix, bool $withRuleKey = true): self
     {
         foreach ($rule::rules() as $input => $validations) {
@@ -78,12 +54,30 @@ class ValidatorBuilderHelper implements ValidatorBuilderInterface
         return $this;
     }
 
-    /**
-     * Remove rule in validator.
-     *
-     * Validators Example: ['product' => 'nullable|json', 'input' => 'required|string'].
-     * Result Example: ['product' => 'nullable|json'].
-     */
+    public function modifyRule(string $input, string $rule, string $new): self
+    {
+        if (in_array($input, array_keys($this->rules->toArray()))) {
+            $inputRules = $this->rules->get($input);
+            $isString = gettype($inputRules) === 'string';
+
+            $inputRules = $isString ? explode(separator: '|', string: $inputRules) : $inputRules;
+
+            foreach ($inputRules as $key => &$value) {
+                if (gettype($value) === 'string') {
+                    if ($value === $rule) {
+                        $value = $new;
+
+                        break;
+                    }
+                }
+            }
+
+            $this->rules->put($input, $isString ? implode(separator: '|', array: $inputRules) : $inputRules);
+        }
+
+        return $this;
+    }
+
     public function removeRule(string $input): self
     {
         $this->rules->forget(keys: $input);
@@ -92,14 +86,35 @@ class ValidatorBuilderHelper implements ValidatorBuilderInterface
         return $this;
     }
 
-    /**
-     * Build validator rules
-     */
     public function build(): ValidatorResultDTO
     {
         return new ValidatorResultDTO(
             rules: $this->rules->all(),
             messages: $this->messages->all(),
         );
+    }
+
+    public function getRules(): Collection
+    {
+        return $this->rules;
+    }
+
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function setRules(Collection $rules): self
+    {
+        $this->rules = $rules;
+
+        return $this;
+    }
+
+    public function setMessages(Collection $messages): self
+    {
+        $this->messages = $messages;
+
+        return $this;
     }
 }
