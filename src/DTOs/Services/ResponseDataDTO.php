@@ -3,6 +3,7 @@
 namespace TheBachtiarz\Base\DTOs\Services;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Model;
 use TheBachtiarz\Base\Enums\Services\ResponseConditionEnum;
 use TheBachtiarz\Base\Enums\Services\ResponseHttpCodeEnum;
 use TheBachtiarz\Base\Enums\Services\ResponseStatusEnum;
@@ -19,16 +20,16 @@ class ResponseDataDTO implements Arrayable
      * @param ResponseStatusEnum $status
      * @param ResponseHttpCodeEnum $httpCode
      * @param string $message
+     * @param ModelInterface|AbstractModel|Model|null $model
      * @param TValue $data
-     * @param ModelInterface|AbstractModel|null $model
      */
     public function __construct(
         public ResponseConditionEnum $condition = ResponseConditionEnum::FALSE,
         public ResponseStatusEnum $status = ResponseStatusEnum::ERROR,
         public ResponseHttpCodeEnum $httpCode = ResponseHttpCodeEnum::ACCEPTED,
         public string $message = '',
+        public ModelInterface|AbstractModel|Model|null $model = null,
         public mixed $data = [],
-        public ModelInterface|AbstractModel|null $model = null,
     ) {}
 
     public function toArray(): array

@@ -37,6 +37,20 @@ trait AbstractEnum
     }
 
     /**
+     * Get as options
+     *
+     * @param array<UnitEnum>|null $cases
+     * @return array
+     */
+    public static function toOptions(?array $cases = null): array
+    {
+        return collect(array_map(
+            callback: fn(UnitEnum|self $case): array => ['value' => $case->value, 'label' => $case->getLabel()],
+            array: $cases ?? static::cases(),
+        ))->pluck('label', 'value')->all();
+    }
+
+    /**
      * Get enum(s) as messages
      */
     public static function messages(): array
