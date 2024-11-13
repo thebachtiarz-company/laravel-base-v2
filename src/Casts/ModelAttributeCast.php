@@ -43,7 +43,7 @@ class ModelAttributeCast implements CastsAttributes
 
         return json_encode((new ModelComponentDTO(
             className: $value::class,
-            attributes: $value->withoutRelations()->toArray(),
+            attributes: $value->withoutRelations()->only(array_merge([$value->getKeyName()], $value->getFillable())),
         ))->toArray());
     }
 }

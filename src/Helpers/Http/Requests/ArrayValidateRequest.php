@@ -6,27 +6,33 @@ use Illuminate\Support\Collection;
 
 class ArrayValidateRequest
 {
-    private static Collection $errorMessages;
+    protected static Collection $errorMessages;
+
+    protected static array|string $attributeRules = ['required', 'alpha_dash:ascii'];
+
+    protected static array|string $valueRules = ['nullable', 'string', 'ascii'];
+
+    protected static string $attributeMessage = 'Format for attribute \'%s\' is incorrect';
+
+    protected static string $valueMessage = 'Value from attribute \'%s\' is not acceptable';
 
     /**
      * Validate dynamic array request
      */
-    public static function validate(array $data): static
+    public static function validate(array $data, bool $valueOnly = false): static
     {
         $errors = [];
 
-        foreach ($data as $key => $value) {
-            $validate = validator(
-                data: compact('key', 'value'),
-                rules: [
-                    'key' => ['required', 'alpha_dash:ascii'],
-                    'value' => ['nullable', 'string', 'ascii'],
-                ],
-                messages: [
-                    'key.*' => sprintf('Format for attribute \'%s\' is incorrect', $key),
-                    'value.*' => sprintf('Value from attribute \'%s\' is not acceptable', $key),
-                ],
-            );
+        foreach ($data as $attribute => $value) {
+            $body = $valueOnly ? compact('attribute') : compact('attribute', 'value');
+
+            $rules = $valueOnly ? ['value' => static::$valueRules] : ['attribute' => static::$attributeRules, 'value' => static::$valueRules];
+
+            $messages = $valueOnly
+                ? ['value.*' => sprintf(static::$valueMessage, $attribute)]
+                : ['attribute.*' => sprintf(static::$attributeMessage, $attribute), 'value.*' => sprintf(static::$valueMessage, $attribute)];
+
+            $validate = validator(data: $body, rules: $rules, messages: $messages);
 
             if ($validate->fails()) {
                 $errors = array_merge($errors, $validate->errors()->all());
@@ -64,5 +70,45 @@ class ArrayValidateRequest
         }
 
         return static::$errorMessages;
+    }
+
+    /**
+     * Define attribute rules
+     */
+    public static function defineAttributeRules(array|string $rules): static
+    {
+        self::$attributeRules = $rules;
+
+        return new static();
+    }
+
+    /**
+     * Define value rules
+     */
+    public static function defineValueRules(array|string $rules): static
+    {
+        self::$valueRules = $rules;
+
+        return new static();
+    }
+
+    /**
+     * Define attribute message
+     */
+    public static function defineAttributeMessage(string $message): static
+    {
+        self::$attributeMessage = $message;
+
+        return new static();
+    }
+
+    /**
+     * Define value message
+     */
+    public static function defineValueMessage(string $message): static
+    {
+        self::$valueMessage = $message;
+
+        return new static();
     }
 }
