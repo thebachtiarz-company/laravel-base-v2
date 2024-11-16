@@ -24,7 +24,7 @@ class ArrayValidateRequest
         $errors = [];
 
         foreach ($data as $attribute => $value) {
-            $body = $valueOnly ? compact('attribute') : compact('attribute', 'value');
+            $body = $valueOnly ? compact('value') : compact('attribute', 'value');
 
             $rules = $valueOnly ? ['value' => static::$valueRules] : ['attribute' => static::$attributeRules, 'value' => static::$valueRules];
 
