@@ -3,10 +3,13 @@
 namespace TheBachtiarz\Base\DTOs\Libraries\Search;
 
 use TheBachtiarz\Base\Enums\Generals\ModelSortDirectionEnum;
-use Illuminate\Contracts\Support\Arrayable;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 
-class InputSortDTO implements Arrayable
+class InputSortDTO extends AbstractDTO
 {
+    public const string COLUMN = 'column';
+    public const string DIRECTION = 'direction';
+
     /**
      * Model order by direction
      *
@@ -21,8 +24,8 @@ class InputSortDTO implements Arrayable
     public function toArray()
     {
         return [
-            'column' => $this->column,
-            'direction' => $this->direction->value,
+            self::COLUMN => $this->column,
+            self::DIRECTION => $this->direction->value,
         ];
     }
 }

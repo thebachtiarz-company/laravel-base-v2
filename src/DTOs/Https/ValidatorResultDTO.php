@@ -2,9 +2,9 @@
 
 namespace TheBachtiarz\Base\DTOs\Https;
 
-use Illuminate\Contracts\Support\Arrayable;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 
-class ValidatorResultDTO implements Arrayable
+class ValidatorResultDTO extends AbstractDTO
 {
     /**
      * @param array $rules
@@ -14,12 +14,4 @@ class ValidatorResultDTO implements Arrayable
         public readonly array $rules,
         public readonly array $messages,
     ) {}
-
-    public function toArray()
-    {
-        return [
-            'rules' => $this->rules,
-            'messages' => $this->messages,
-        ];
-    }
 }

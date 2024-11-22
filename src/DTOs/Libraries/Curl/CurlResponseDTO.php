@@ -2,10 +2,9 @@
 
 namespace TheBachtiarz\Base\DTOs\Libraries\Curl;
 
-use TheBachtiarz\Base\Interfaces\Http\ResponseInterface;
-use Illuminate\Contracts\Support\Arrayable;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 
-class CurlResponseDTO implements Arrayable
+class CurlResponseDTO extends AbstractDTO
 {
     /**
      * @param integer $httpCode
@@ -19,14 +18,4 @@ class CurlResponseDTO implements Arrayable
         public string $message = '',
         public mixed $data = null,
     ) {}
-
-    public function toArray()
-    {
-        return [
-            ResponseInterface::HTTP_CODE => $this->httpCode,
-            ResponseInterface::STATUS => $this->status,
-            ResponseInterface::MESSAGE => $this->message,
-            ResponseInterface::DATA => $this->data,
-        ];
-    }
 }

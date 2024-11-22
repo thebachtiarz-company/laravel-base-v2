@@ -2,9 +2,9 @@
 
 namespace TheBachtiarz\Base\DTOs\Models;
 
-use Illuminate\Contracts\Support\Arrayable;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 
-class ModelComponentDTO implements Arrayable
+class ModelComponentDTO extends AbstractDTO
 {
     /**
      * Class attribute
@@ -16,12 +16,4 @@ class ModelComponentDTO implements Arrayable
         public readonly string $className,
         public readonly array $attributes,
     ) {}
-
-    public function toArray()
-    {
-        return [
-            'className' => $this->className,
-            'attributes' => $this->attributes,
-        ];
-    }
 }

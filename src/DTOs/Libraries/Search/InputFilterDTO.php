@@ -4,10 +4,15 @@ namespace TheBachtiarz\Base\DTOs\Libraries\Search;
 
 use TheBachtiarz\Base\Enums\Generals\ModelFilterOperatorEnum;
 use TheBachtiarz\Base\Enums\Generals\ModelFilterTypeEnum;
-use Illuminate\Contracts\Support\Arrayable;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 
-class InputFilterDTO implements Arrayable
+class InputFilterDTO extends AbstractDTO
 {
+    public const string COLUMN = 'column';
+    public const string OPERATOR = 'operator';
+    public const string VALUE = 'value';
+    public const string TYPE = 'type';
+
     /**
      * Input search filter
      *
@@ -26,10 +31,10 @@ class InputFilterDTO implements Arrayable
     public function toArray()
     {
         return [
-            'column' => $this->column,
-            'operator' => $this->operator->getLabel(),
-            'value' => $this->value,
-            'type' => $this->type->getLabel(),
+            self::COLUMN => $this->column,
+            self::OPERATOR => $this->operator->getLabel(),
+            self::VALUE => $this->value,
+            self::TYPE => $this->type->getLabel(),
         ];
     }
 }

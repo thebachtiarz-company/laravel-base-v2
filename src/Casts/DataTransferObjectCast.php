@@ -5,15 +5,15 @@ namespace TheBachtiarz\Base\Casts;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Database\Eloquent\Model;
 
-class UnitEnumCast implements CastsAttributes
+class DataTransferObjectCast implements CastsAttributes
 {
     /**
      * Create a new cast class instance.
      *
-     * @param class-string<\UnitEnum> $unitEnum
+     * @param class-string<\TheBachtiarz\Base\DTOs\AbstractDTO> $dtoClass
      */
     public function __construct(
-        protected string $unitEnum,
+        protected string $dtoClass,
     ) {}
 
     /**
@@ -23,10 +23,10 @@ class UnitEnumCast implements CastsAttributes
      */
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        $enum = $this->unitEnum;
-        assert($enum instanceof \UnitEnum);
+        $dto = app($this->dtoClass);
+        assert($dto instanceof \TheBachtiarz\Base\DTOs\AbstractDTO);
 
-        return $enum::tryFrom($value);
+        return $dto->fromArray($value ?? []);
     }
 
     /**
@@ -36,8 +36,8 @@ class UnitEnumCast implements CastsAttributes
      */
     public function set(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        assert($value instanceof \UnitEnum || $value === null);
+        assert($value instanceof \TheBachtiarz\Base\DTOs\AbstractDTO || $value === null);
 
-        return $value?->value;
+        return $value?->toArray();
     }
 }

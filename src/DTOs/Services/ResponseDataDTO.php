@@ -2,8 +2,8 @@
 
 namespace TheBachtiarz\Base\DTOs\Services;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
+use TheBachtiarz\Base\DTOs\AbstractDTO;
 use TheBachtiarz\Base\Enums\Services\ResponseConditionEnum;
 use TheBachtiarz\Base\Enums\Services\ResponseHttpCodeEnum;
 use TheBachtiarz\Base\Enums\Services\ResponseStatusEnum;
@@ -11,7 +11,7 @@ use TheBachtiarz\Base\Interfaces\Http\ResponseInterface;
 use TheBachtiarz\Base\Interfaces\Models\ModelInterface;
 use TheBachtiarz\Base\Models\AbstractModel;
 
-class ResponseDataDTO implements Arrayable
+class ResponseDataDTO extends AbstractDTO
 {
     /**
      * @template TValue
