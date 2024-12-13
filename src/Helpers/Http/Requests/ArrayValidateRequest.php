@@ -10,7 +10,7 @@ class ArrayValidateRequest
 
     protected static array|string $attributeRules = ['required', 'alpha_dash:ascii'];
 
-    protected static array|string $valueRules = ['nullable', 'string', 'ascii'];
+    protected static array|string $valueRules = ['nullable', 'string'];
 
     protected static string $attributeMessage = 'Format for attribute \'%s\' is incorrect';
 

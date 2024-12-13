@@ -26,7 +26,7 @@ class DataTransferObjectCast implements CastsAttributes
         $dto = app($this->dtoClass);
         assert($dto instanceof \TheBachtiarz\Base\DTOs\AbstractDTO);
 
-        return $dto->fromArray($value ?? []);
+        return $dto->fromArray($value ? json_decode($value, true) : []);
     }
 
     /**
@@ -38,6 +38,6 @@ class DataTransferObjectCast implements CastsAttributes
     {
         assert($value instanceof \TheBachtiarz\Base\DTOs\AbstractDTO || $value === null);
 
-        return $value?->toArray();
+        return json_encode($value?->toArray() ?? []);
     }
 }
