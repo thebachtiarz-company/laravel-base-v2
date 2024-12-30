@@ -13,8 +13,8 @@ abstract class AbstractLogEntity
     protected LoggerInterface $logger;
 
     /**
-     * Undocumented function
-     *
+     * Constructor
+     * 
      * @param string $channel Logger Channel
      * @param mixed $logEntity Logger Entity
      */
@@ -23,31 +23,24 @@ abstract class AbstractLogEntity
         private mixed $logEntity = null,
     ) {}
 
-    // ? Public Methods
-
     /**
      * Execute process write logger
      */
     public function process(): void
     {
         $this->logger = Log::channel($this->getChannel());
-
         $this->execute();
     }
-
-    // ? Protected Methods
 
     /**
      * Execute logger process
      */
     abstract protected function execute(): void;
 
-    // ? Private Methods
-
-    // ? Getter Modules
-
     /**
      * Get channel
+     * 
+     * @return string
      */
     public function getChannel(): string
     {
@@ -56,31 +49,35 @@ abstract class AbstractLogEntity
 
     /**
      * Get log entity
+     * 
+     * @return mixed
      */
     public function getLogEntity(): mixed
     {
         return $this->logEntity;
     }
 
-    // ? Setter Modules
-
     /**
      * Set channel
+     * 
+     * @param string $channel
+     * @return self
      */
     public function setChannel(string $channel): self
     {
         $this->channel = $channel;
-
         return $this;
     }
 
     /**
      * Set log entity
+     * 
+     * @param mixed $logEntity
+     * @return self
      */
     public function setLogEntity($logEntity): self
     {
         $this->logEntity = $logEntity;
-
         return $this;
     }
 }

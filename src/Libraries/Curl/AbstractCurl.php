@@ -15,25 +15,60 @@ use Throwable;
 
 abstract class AbstractCurl
 {
+    /**
+     * HTTP GET method
+     */
     protected const string METHOD_GET = 'get';
+
+    /**
+     * HTTP HEAD method
+     */
+    protected const string METHOD_HEAD = 'head';
+
+    /**
+     * HTTP POST method
+     */
     protected const string METHOD_POST = 'post';
 
     /**
+     * HTTP PATCH method
+     */
+    protected const string METHOD_PATCH = 'patch';
+
+    /**
+     * HTTP PUT method
+     */
+    protected const string METHOD_PUT = 'put';
+
+    /**
+     * HTTP DELETE method
+     */
+    protected const string METHOD_DELETE = 'delete';
+
+    /**
      * Result response from CURL
+     * 
+     * @var CurlResponseDTO
      */
     private CurlResponseDTO $response;
 
     /**
      * Curl request method
+     * 
+     * @var string|null
      */
     private ?string $method = null;
 
     /**
      * Enable curl log
+     * 
+     * @var bool
      */
     private bool $enableCurlLog = false;
 
     /**
+     * Constructor
+     * 
      * @param LoggerInterface $logger
      * @param string|null $token
      * @param array|null $headers
@@ -58,10 +93,10 @@ abstract class AbstractCurl
         $this->response = new CurlResponseDTO();
     }
 
-    // ? Public Methods
-
     /**
-     * Process curl
+     * Process the CURL request
+     * 
+     * @return CurlResponseDTO
      */
     public function process(): CurlResponseDTO
     {
@@ -70,6 +105,8 @@ abstract class AbstractCurl
 
     /**
      * Enable curl log
+     * 
+     * @return static
      */
     public function enableCurlLog(): static
     {
@@ -78,20 +115,24 @@ abstract class AbstractCurl
         return $this;
     }
 
-    // ? Protected Methods
-
     /**
-     * Execute curl process
+     * Execute the CURL request
+     * 
+     * @return static
      */
     abstract protected function execute(): static;
 
     /**
-     * Resolve url domain location
+     * Resolve the URL for the CURL request
+     * 
+     * @return string
      */
     abstract protected function urlResolver(): string;
 
     /**
-     * Request curl init
+     * Initialize the CURL request
+     * 
+     * @return PendingRequest
      */
     protected function curl(): PendingRequest
     {
@@ -105,7 +146,17 @@ abstract class AbstractCurl
     }
 
     /**
-     * Send request with method: GET
+     * Extend the CURL request
+     * 
+     * @param PendingRequest $curl
+     * @return void
+     */
+    protected function curlExtend(PendingRequest &$curl): void {}
+
+    /**
+     * Send a GET request
+     * 
+     * @return static
      */
     protected function get(): static
     {
@@ -113,7 +164,19 @@ abstract class AbstractCurl
     }
 
     /**
-     * Send request with method: POST
+     * Send a HEAD request
+     * 
+     * @return static
+     */
+    protected function head(): static
+    {
+        return $this->sendRequest(self::METHOD_HEAD);
+    }
+
+    /**
+     * Send a POST request
+     * 
+     * @return static
      */
     protected function post(): static
     {
@@ -121,17 +184,51 @@ abstract class AbstractCurl
     }
 
     /**
-     * Request curl send
+     * Send a PATCH request
+     * 
+     * @return static
+     */
+    protected function patch(): static
+    {
+        return $this->sendRequest(self::METHOD_PATCH);
+    }
+
+    /**
+     * Send a PUT request
+     * 
+     * @return static
+     */
+    protected function put(): static
+    {
+        return $this->sendRequest(self::METHOD_PUT);
+    }
+
+    /**
+     * Send a DELETE request
+     * 
+     * @return static
+     */
+    protected function delete(): static
+    {
+        return $this->sendRequest(self::METHOD_DELETE);
+    }
+
+    /**
+     * Send the CURL request
+     * 
+     * @param string $method
+     * @return static
      */
     protected function sendRequest(string $method): static
     {
         $this->method = $method;
-
         $pendingRequest = $this->curl();
 
         if ($this->token) {
             $pendingRequest->withToken($this->token);
         }
+
+        $this->curlExtend($pendingRequest);
 
         $response = $pendingRequest->{$method}($this->urlResolver(), $this->getBody());
         assert($response instanceof Response);
@@ -155,13 +252,21 @@ abstract class AbstractCurl
     }
 
     /**
-     * Get response result
+     * Get the result of the CURL request
+     * 
+     * @return CurlResponseDTO
      */
     protected function getResult(): CurlResponseDTO
     {
         return $this->response;
     }
 
+    /**
+     * Process the response result
+     * 
+     * @param Response $response
+     * @return void
+     */
     protected function processResponseResult(Response $response): void
     {
         try {
@@ -174,7 +279,10 @@ abstract class AbstractCurl
     }
 
     /**
-     * Write log curl
+     * Write the CURL log
+     * 
+     * @param string $message
+     * @return void
      */
     protected function writeCurlLog(string $message): void
     {
@@ -182,7 +290,11 @@ abstract class AbstractCurl
     }
 
     /**
-     * Check is response are unprocessable
+     * Check if the response is unprocessable
+     * 
+     * @param Response $response
+     * @return void
+     * @throws Exception
      */
     protected function checkResponseUnprocessable(Response $response): void
     {
@@ -190,7 +302,7 @@ abstract class AbstractCurl
 
         if (
             in_array('errors', array_keys($response)) ||
-            @$response[ResponseInterface::HTTP_CODE] === 422
+            @$response[ResponseInterface::HTTP_CODE] === ResponseHttpCodeEnum::UNPROCESSABLE->value
         ) {
             $this->response = new CurlResponseDTO(
                 httpCode: ResponseHttpCodeEnum::UNPROCESSABLE->value,
@@ -199,12 +311,16 @@ abstract class AbstractCurl
                 data: @$response['errors'],
             );
 
-            throw new Exception(message: $response[ResponseInterface::MESSAGE], code: 422);
+            throw new Exception(message: $response[ResponseInterface::MESSAGE], code: ResponseHttpCodeEnum::UNPROCESSABLE->value);
         }
     }
 
     /**
-     * Check response status
+     * Check the response status
+     * 
+     * @param Response $response
+     * @return void
+     * @throws Exception
      */
     protected function checkResponseStatus(Response $response): void
     {
@@ -220,7 +336,10 @@ abstract class AbstractCurl
     }
 
     /**
-     * Set response data
+     * Set the response data
+     * 
+     * @param Response $response
+     * @return void
      */
     protected function setResponseData(Response $response): void
     {
@@ -234,12 +353,10 @@ abstract class AbstractCurl
         );
     }
 
-    // ? Private Methods
-
-    // ? Getter Modules
-
     /**
-     * Get the value of token
+     * Get the token
+     * 
+     * @return string|null
      */
     public function getToken(): ?string
     {
@@ -247,7 +364,9 @@ abstract class AbstractCurl
     }
 
     /**
-     * Get the value of headers
+     * Get the headers
+     * 
+     * @return array|null
      */
     public function getHeaders(): ?array
     {
@@ -255,17 +374,20 @@ abstract class AbstractCurl
     }
 
     /**
-     * Get the value of body
+     * Get the body
+     * 
+     * @return array|null
      */
     public function getBody(): ?array
     {
         return $this->body;
     }
 
-    // ? Setter Modules
-
     /**
-     * Set the value of token
+     * Set the token
+     * 
+     * @param string|null $token
+     * @return static
      */
     public function setToken(?string $token = null): static
     {
@@ -275,9 +397,12 @@ abstract class AbstractCurl
     }
 
     /**
-     * Set the value of headers
+     * Set the headers
+     * 
+     * @param array|null $headers
+     * @return static
      */
-    public function setHeaders(?array $headers = null): static
+    public function setHeaders(?array $headers = []): static
     {
         $this->headers = $headers;
 
@@ -285,9 +410,12 @@ abstract class AbstractCurl
     }
 
     /**
-     * Set the value of body
+     * Set the body
+     * 
+     * @param array|null $body
+     * @return static
      */
-    public function setBody(?array $body = null): static
+    public function setBody(?array $body = []): static
     {
         $this->body = $body;
 

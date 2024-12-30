@@ -43,9 +43,9 @@ class ResponseCollectionHelper
     /**
      * Add new response
      *
-     * @template T
+     * @template TValue
      *
-     * @param T $data Response Data
+     * @param TValue $data Response Data
      * @param ?string $key Custom Attribute
      * @return static
      */

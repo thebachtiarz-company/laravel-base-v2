@@ -35,7 +35,7 @@ class SearchService implements SearchCriteriaInterface
     protected ?LengthAwarePaginator $result = null;
 
     /**
-     * @var string[]
+     * @var array
      */
     protected array $modelColumns = [];
 
@@ -46,55 +46,52 @@ class SearchService implements SearchCriteriaInterface
         protected SearchCriteriaOutputInterface $searchResult,
     ) {}
 
-    // ? Public Methods
-
     /**
-     * Execute search criteria
+     * Execute the search criteria.
+     *
+     * @param SearchCriteriaInputInterface $input
+     * @return SearchCriteriaOutputInterface
      */
     public function execute(SearchCriteriaInputInterface $input): SearchCriteriaOutputInterface
     {
         $this->input = $input;
-
         $this->result = $this->input->getCustomData();
 
         if (!$this->result) {
             $this->builder = $this->input->getBuilder() ?: $this->input->getModel()::query();
-
             $this->modelColumns = ModelHelper::getTableColumnsFromModel($this->builder->getModel());
-
             $this->builderFilters();
-
             $this->builderSorts();
-
             $this->searchResult->setResultOrigin(resultOrigin: clone $this->builder->get());
-
             $this->paginateProcess();
         }
 
         $this->createResultPaginate();
-
         return $this->searchResult;
     }
 
-    // ? Protected Methods
-
     /**
-     * Add filter(s) in builder
+     * Apply filters to the builder.
+     *
+     * @return void
      */
     protected function builderFilters(): void
     {
         if ($this->input->getFilters()->count()) {
-            foreach ($this->input->getFilters()->all() ?? [] as $key => $filter) {
+            foreach ($this->input->getFilters()->all() ?? [] as $filter) {
                 assert($filter instanceof InputFilterDTO);
 
-                FILTER_COLUMN_ARRAY:
                 if (is_array($filter->column)) {
-                    if (!(new Collection($filter->column))->contains(fn(string $column): bool => in_array(needle: $column, haystack: $this->modelColumns))) {
-                        goto FILTER_CONTINUE;
+                    if (!(new Collection($filter->column))->contains(fn(string $column): bool => in_array($column, $this->modelColumns))) {
+                        continue;
                     }
 
-                    if (!in_array(needle: $filter->type, haystack: ModelFilterTypeEnum::whereColumnArray())) {
-                        goto FILTER_WITHOUT_OPERATOR;
+                    if (!in_array($filter->type, ModelFilterTypeEnum::whereColumnArray())) {
+                        $this->builder->{$filter->type->value}(
+                            column: $filter->column,
+                            values: $filter->value,
+                        );
+                        continue;
                     }
 
                     $this->builder->{$filter->type->value}(
@@ -102,61 +99,57 @@ class SearchService implements SearchCriteriaInterface
                         operator: $this->builderFilterOperatorResolver($filter),
                         value: $this->builderFilterValueResolver($filter),
                     );
-
-                    goto FILTER_CONTINUE;
+                    continue;
                 }
 
-                if (!in_array(needle: $filter->column, haystack: $this->modelColumns)) {
-                    goto FILTER_CONTINUE;
+                if (!in_array($filter->column, $this->modelColumns)) {
+                    continue;
                 }
 
-                FILTER_WITHOUT_OPERATOR:
-                if (in_array(needle: $filter->type, haystack: ModelFilterTypeEnum::whereWithoutOperator())) {
+                if (in_array($filter->type, ModelFilterTypeEnum::whereWithoutOperator())) {
                     $this->builder->{$filter->type->value}(
                         column: $filter->column,
                         values: $filter->value,
                     );
-
-                    goto FILTER_CONTINUE;
+                    continue;
                 }
 
-                FILTER_WITH_OPERATOR:
                 $this->builder->{$filter->type->value}(
                     column: $filter->column,
                     operator: $this->builderFilterOperatorResolver($filter),
                     value: $this->builderFilterValueResolver($filter),
                 );
-
-                FILTER_CONTINUE:
             }
         }
     }
 
     /**
-     * Add sort(s) in builder
+     * Apply sorts to the builder.
+     *
+     * @return void
      */
     protected function builderSorts(): void
     {
         if ($this->input->getSorts()->count()) {
-            foreach ($this->input->getSorts()->all() ?? [] as $kSort => $sort) {
+            foreach ($this->input->getSorts()->all() ?? [] as $sort) {
                 assert($sort instanceof InputSortDTO);
 
-                if (!in_array(needle: $sort->column, haystack: $this->modelColumns)) {
-                    goto SORT_CONTINUE;
+                if (!in_array($sort->column, $this->modelColumns)) {
+                    continue;
                 }
 
                 $this->builder->orderBy(
                     column: $sort->column,
                     direction: $sort->direction->value,
                 );
-
-                SORT_CONTINUE:
             }
         }
     }
 
     /**
-     * Patch pagination result
+     * Process pagination.
+     *
+     * @return void
      */
     protected function paginateProcess(): void
     {
@@ -164,31 +157,29 @@ class SearchService implements SearchCriteriaInterface
         $currentPage = null;
         $perPage = null;
 
-        PROCESS_PAGINATE:
-        $this->result = $this->builder->paginate(
-            perPage: $perPage ?? $this->input->getPerPage(),
-            page: $currentPage ?? $this->input->getCurrentPage(),
-        );
+        do {
+            $this->result = $this->builder->paginate(
+                perPage: $perPage ?? $this->input->getPerPage(),
+                page: $currentPage ?? $this->input->getCurrentPage(),
+            );
 
-        if ($this->input->getIsAllItems()) {
-            if (!$alreadyAllItems) {
+            if ($this->input->getIsAllItems() && !$alreadyAllItems) {
                 $this->input->setPerPage($this->result->total())->setPerPage(1);
                 $alreadyAllItems = true;
                 $currentPage = 1;
                 $perPage = $this->result->total() <= 500 ? $this->result->total() : 500;
-
-                goto PROCESS_PAGINATE;
             }
-        }
 
-        if (count($this->result->items()) < 1 && $this->input->getCurrentPage() > 1) {
-            $this->input->setCurrentPage($this->result->lastPage());
-            goto PROCESS_PAGINATE;
-        }
+            if (count($this->result->items()) < 1 && $this->input->getCurrentPage() > 1) {
+                $this->input->setCurrentPage($this->result->lastPage());
+            }
+        } while (count($this->result->items()) < 1 && $this->input->getCurrentPage() > 1);
     }
 
     /**
-     * Create pagination result
+     * Create the result pagination.
+     *
+     * @return void
      */
     protected function createResultPaginate(): void
     {
@@ -216,10 +207,11 @@ class SearchService implements SearchCriteriaInterface
         ));
     }
 
-    // ? Private Methods
-
     /**
-     * Resolve filter operator builder
+     * Resolve the filter operator.
+     *
+     * @param InputFilterDTO $filter
+     * @return string
      */
     private function builderFilterOperatorResolver(InputFilterDTO $filter): string
     {
@@ -227,7 +219,10 @@ class SearchService implements SearchCriteriaInterface
     }
 
     /**
-     * Resolve filter value builder
+     * Resolve the filter value.
+     *
+     * @param InputFilterDTO $filter
+     * @return mixed
      */
     private function builderFilterValueResolver(InputFilterDTO $filter): mixed
     {
@@ -236,8 +231,4 @@ class SearchService implements SearchCriteriaInterface
             default => $filter->value,
         };
     }
-
-    // ? Getter Modules
-
-    // ? Setter Modules
 }

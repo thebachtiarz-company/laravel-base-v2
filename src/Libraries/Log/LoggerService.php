@@ -30,16 +30,18 @@ class LoggerService implements LoggerInterface
 
     /**
      * Write logger
+     * 
+     * @param mixed $entity
+     * @param string|null $channel
+     * @return void
      */
     public function writeLog(mixed $entity, ?string $channel = null): void
     {
         $logger = app()->make($this->defineEntityType($entity));
         assert($logger instanceof AbstractLogEntity);
 
-        if ($channel) {
-            if (in_array(needle: $channel, haystack: array_keys(config('logging.channels')))) {
-                $logger->setChannel($channel);
-            }
+        if ($channel && in_array($channel, array_keys(config('logging.channels')))) {
+            $logger->setChannel($channel);
         }
 
         $logger->setLogEntity($entity)->process();
@@ -47,6 +49,9 @@ class LoggerService implements LoggerInterface
 
     /**
      * Define log entity type
+     * 
+     * @param mixed $entity
+     * @return string
      */
     protected function defineEntityType(mixed $entity): string
     {
@@ -57,7 +62,7 @@ class LoggerService implements LoggerInterface
                 $result = Error::class;
             }
 
-            throw_if(!in_array(needle: $result, haystack: $this->loggerClassEntity), 'Exception', 'Class not found');
+            throw_if(!in_array($result, $this->loggerClassEntity), 'Exception', 'Class not found');
         } catch (\Throwable $th) {
             $result = Info::class;
         }
@@ -69,11 +74,12 @@ class LoggerService implements LoggerInterface
      * Add class entities
      *
      * @param AbstractLogEntity[] $classEntities
+     * @return self
      */
     protected function addClassEntity(array $classEntities = []): self
     {
         $this->loggerClassEntity = array_unique(
-            array: array_merge(
+            array_merge(
                 $this->loggerClassEntity,
                 $classEntities,
             ),

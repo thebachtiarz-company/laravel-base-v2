@@ -10,14 +10,16 @@ use Throwable;
 abstract class AbstractCommand extends Command
 {
     /**
-     * Command title
+     * @var string Command title
      */
     protected string $commandTitle = '';
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $result = self::INVALID;
 
@@ -52,7 +54,9 @@ abstract class AbstractCommand extends Command
     }
 
     /**
-     * Command process
+     * Command process.
+     *
+     * @return bool
      */
     abstract protected function commandProcess(): bool;
 }

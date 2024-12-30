@@ -10,7 +10,7 @@ class CurlService implements CurlInterface
     /**
      * Send http request
      *
-     * @param class-string<AbstractCurl> $classEntity
+     * @param class-string<\TheBachtiarz\Base\Libraries\Curl\AbstractCurl> $classEntity
      */
     public function sendHttpRequest(string $classEntity, array $body = [], array $headers = []): CurlResponseDTO
     {

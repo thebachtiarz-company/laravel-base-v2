@@ -21,6 +21,8 @@ class ArrayValidateRequest
      */
     public static function validate(array $data, bool $valueOnly = false): static
     {
+        static::$errorMessages = Collection::make();
+
         $errors = [];
 
         foreach ($data as $attribute => $value) {

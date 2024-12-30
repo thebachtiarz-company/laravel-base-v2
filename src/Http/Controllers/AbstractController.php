@@ -12,18 +12,12 @@ abstract class AbstractController
     /**
      * Constructor
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct() {}
 
     /**
      * Destructor
      */
-    public function __destruct()
-    {
-        //
-    }
+    public function __destruct() {}
 
     // ? Public Methods
 
@@ -31,6 +25,9 @@ abstract class AbstractController
 
     /**
      * Get response as JSON
+     *
+     * @param string|null $responseCode
+     * @return JsonResponse
      */
     protected function getJsonResponse(?string $responseCode = null): JsonResponse
     {

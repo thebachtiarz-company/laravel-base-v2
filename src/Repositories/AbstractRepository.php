@@ -137,6 +137,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Define model builder
+     *
+     * @return ($modelBuilder is null ? EloquentBuilder|QueryBuilder : static)
      */
     public function modelBuilder(EloquentBuilder|QueryBuilder|null $modelBuilder = null): static|EloquentBuilder|QueryBuilder|null
     {
@@ -151,6 +153,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
     /**
      * Throw if entity is null
+     *
+     * @return ($throwable is null ? bool : static)
      */
     public function throwIfNullEntity(bool|null $throwable = null): static|bool
     {
@@ -237,6 +241,47 @@ abstract class AbstractRepository implements RepositoryInterface
         $this->modelEntityName ??= $name ?? Str::headline(class_basename($this->modelEntity::class));
 
         return $this;
+    }
+
+    /**
+     * Get model builder entity
+     * 
+     * @throws \TheBachtiarz\Base\Exceptions\BaseException
+     */
+    protected function getBuilderEntity(int|string|null $specialIdentity = null): ?ModelInterface
+    {
+        $entity = $this->modelBuilder()->first();
+
+        if (!$entity && $this->throwIfNullEntity()) {
+            throw new BaseException(
+                message: $specialIdentity
+                    ? sprintf($this->getByIdErrorMessage(), $this->modelEntityName, $specialIdentity)
+                    : sprintf('Entity %s not found!', $this->modelEntityName),
+                code: 404,
+            );
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Get model builder collection
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int,\TheBachtiarz\Base\Interfaces\Models\ModelInterface|\Illuminate\Database\Eloquent\Model>
+     * @throws \TheBachtiarz\Base\Exceptions\BaseException
+     */
+    protected function getBuilderCollection(): Collection
+    {
+        $collection = $this->modelBuilder()->get();
+
+        if (!$collection->count() && $this->throwIfNullEntity()) {
+            throw new BaseException(
+                message: sprintf('Entity %s not found!', $this->modelEntityName),
+                code: 404,
+            );
+        }
+
+        return $collection;
     }
 
     /**

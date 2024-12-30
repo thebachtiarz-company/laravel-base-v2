@@ -35,6 +35,7 @@ enum ResponseHttpCodeEnum: int
             self::BAD_REQUEST => 'Bad Request',
             self::UNAUTHORIZED => 'Unauthorized',
             self::NOT_FOUND => 'Not Found',
+            self::UNPROCESSABLE => 'Unprocessable',
             self::INTERNAL_SERVER_ERROR => 'Internal Server Error',
             self::NOT_IMPLEMENTED => 'Not Implemented',
             self::SERVICE_UNAVAILABLE => 'Service Unavailable',

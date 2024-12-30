@@ -17,7 +17,7 @@ class SearchInput implements SearchCriteriaInputInterface
 {
     /**
      * @param ModelInterface|Model|null $model
-     * @param EloquentBuilder|QueryBuilder|null|null $builder
+     * @param EloquentBuilder|QueryBuilder|null $builder
      * @param LengthAwarePaginator|null $customData
      * @param Collection<InputFilterDTO> $filters
      * @param Collection<InputSortDTO> $sorts

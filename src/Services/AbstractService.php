@@ -121,10 +121,7 @@ abstract class AbstractService implements ServiceInterface
             return;
         }
 
-        /** @var LoggerInterface $logger */
-        $logger = app(LoggerInterface::class);
-
-        $logger->writeLog(entity: $log, channel: $channel);
+        app(LoggerInterface::class)->writeLog(entity: $log, channel: $channel);
     }
 
     // ? Private Methods
