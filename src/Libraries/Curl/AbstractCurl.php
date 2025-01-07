@@ -47,28 +47,28 @@ abstract class AbstractCurl
 
     /**
      * Result response from CURL
-     * 
+     *
      * @var CurlResponseDTO
      */
     private CurlResponseDTO $response;
 
     /**
      * Curl request method
-     * 
+     *
      * @var string|null
      */
     private ?string $method = null;
 
     /**
      * Enable curl log
-     * 
+     *
      * @var bool
      */
     private bool $enableCurlLog = false;
 
     /**
      * Constructor
-     * 
+     *
      * @param LoggerInterface $logger
      * @param string|null $token
      * @param array|null $headers
@@ -95,7 +95,7 @@ abstract class AbstractCurl
 
     /**
      * Process the CURL request
-     * 
+     *
      * @return CurlResponseDTO
      */
     public function process(): CurlResponseDTO
@@ -105,7 +105,7 @@ abstract class AbstractCurl
 
     /**
      * Enable curl log
-     * 
+     *
      * @return static
      */
     public function enableCurlLog(): static
@@ -117,21 +117,21 @@ abstract class AbstractCurl
 
     /**
      * Execute the CURL request
-     * 
+     *
      * @return static
      */
     abstract protected function execute(): static;
 
     /**
      * Resolve the URL for the CURL request
-     * 
+     *
      * @return string
      */
     abstract protected function urlResolver(): string;
 
     /**
      * Initialize the CURL request
-     * 
+     *
      * @return PendingRequest
      */
     protected function curl(): PendingRequest
@@ -147,7 +147,7 @@ abstract class AbstractCurl
 
     /**
      * Extend the CURL request
-     * 
+     *
      * @param PendingRequest $curl
      * @return void
      */
@@ -155,7 +155,7 @@ abstract class AbstractCurl
 
     /**
      * Send a GET request
-     * 
+     *
      * @return static
      */
     protected function get(): static
@@ -165,7 +165,7 @@ abstract class AbstractCurl
 
     /**
      * Send a HEAD request
-     * 
+     *
      * @return static
      */
     protected function head(): static
@@ -175,7 +175,7 @@ abstract class AbstractCurl
 
     /**
      * Send a POST request
-     * 
+     *
      * @return static
      */
     protected function post(): static
@@ -185,7 +185,7 @@ abstract class AbstractCurl
 
     /**
      * Send a PATCH request
-     * 
+     *
      * @return static
      */
     protected function patch(): static
@@ -195,7 +195,7 @@ abstract class AbstractCurl
 
     /**
      * Send a PUT request
-     * 
+     *
      * @return static
      */
     protected function put(): static
@@ -205,7 +205,7 @@ abstract class AbstractCurl
 
     /**
      * Send a DELETE request
-     * 
+     *
      * @return static
      */
     protected function delete(): static
@@ -215,7 +215,7 @@ abstract class AbstractCurl
 
     /**
      * Send the CURL request
-     * 
+     *
      * @param string $method
      * @return static
      */
@@ -253,7 +253,7 @@ abstract class AbstractCurl
 
     /**
      * Get the result of the CURL request
-     * 
+     *
      * @return CurlResponseDTO
      */
     protected function getResult(): CurlResponseDTO
@@ -263,7 +263,7 @@ abstract class AbstractCurl
 
     /**
      * Process the response result
-     * 
+     *
      * @param Response $response
      * @return void
      */
@@ -272,26 +272,29 @@ abstract class AbstractCurl
         try {
             $this->checkResponseUnprocessable(response: $response);
             $this->checkResponseStatus(response: $response);
-            $this->setResponseData(response: $response);
         } catch (Throwable $th) {
-            $this->logger->writeLog($th, 'curl');
+            $this->writeCurlLog($th->getMessage());
         }
+
+        $this->setResponseData(response: $response);
     }
 
     /**
      * Write the CURL log
-     * 
+     *
      * @param string $message
      * @return void
      */
     protected function writeCurlLog(string $message): void
     {
-        $this->logger->writeLog($message, 'curl');
+        if ($this->enableCurlLog) {
+            $this->logger->writeLog($message, 'curl');
+        }
     }
 
     /**
      * Check if the response is unprocessable
-     * 
+     *
      * @param Response $response
      * @return void
      * @throws Exception
@@ -317,7 +320,7 @@ abstract class AbstractCurl
 
     /**
      * Check the response status
-     * 
+     *
      * @param Response $response
      * @return void
      * @throws Exception
@@ -337,7 +340,7 @@ abstract class AbstractCurl
 
     /**
      * Set the response data
-     * 
+     *
      * @param Response $response
      * @return void
      */
@@ -346,16 +349,16 @@ abstract class AbstractCurl
         $response = $response->json();
 
         $this->response = new CurlResponseDTO(
-            httpCode: $response[ResponseInterface::HTTP_CODE],
-            status: $response[ResponseInterface::STATUS],
-            message: $response[ResponseInterface::MESSAGE],
-            data: $response[ResponseInterface::DATA],
+            httpCode: @$response[ResponseInterface::HTTP_CODE] ?? ResponseHttpCodeEnum::ACCEPTED->value,
+            status: @$response[ResponseInterface::STATUS] ?? ResponseStatusEnum::ERROR->value,
+            message: @$response[ResponseInterface::MESSAGE] ?? 'Something went wrong with the request',
+            data: @$response[ResponseInterface::DATA] ?? [],
         );
     }
 
     /**
      * Get the token
-     * 
+     *
      * @return string|null
      */
     public function getToken(): ?string
@@ -365,7 +368,7 @@ abstract class AbstractCurl
 
     /**
      * Get the headers
-     * 
+     *
      * @return array|null
      */
     public function getHeaders(): ?array
@@ -375,7 +378,7 @@ abstract class AbstractCurl
 
     /**
      * Get the body
-     * 
+     *
      * @return array|null
      */
     public function getBody(): ?array
@@ -385,7 +388,7 @@ abstract class AbstractCurl
 
     /**
      * Set the token
-     * 
+     *
      * @param string|null $token
      * @return static
      */
@@ -398,7 +401,7 @@ abstract class AbstractCurl
 
     /**
      * Set the headers
-     * 
+     *
      * @param array|null $headers
      * @return static
      */
@@ -411,7 +414,7 @@ abstract class AbstractCurl
 
     /**
      * Set the body
-     * 
+     *
      * @param array|null $body
      * @return static
      */
