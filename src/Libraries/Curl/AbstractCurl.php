@@ -348,11 +348,13 @@ abstract class AbstractCurl
     {
         $response = $response->json();
 
+        $responseStatus = !!@$response[ResponseInterface::STATUS];
+
         $this->response = new CurlResponseDTO(
             httpCode: @$response[ResponseInterface::HTTP_CODE] ?? ResponseHttpCodeEnum::ACCEPTED->value,
             status: @$response[ResponseInterface::STATUS] ?? ResponseStatusEnum::ERROR->value,
             message: @$response[ResponseInterface::MESSAGE] ?? 'Something went wrong with the request',
-            data: @$response[ResponseInterface::DATA] ?? [],
+            data: $responseStatus ? (@$response[ResponseInterface::DATA] ?? []) : (@$response[ResponseInterface::ERRORS] ?? []),
         );
     }
 

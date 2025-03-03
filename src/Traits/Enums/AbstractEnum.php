@@ -62,6 +62,18 @@ trait AbstractEnum
     }
 
     /**
+     * Let's try to find enum using value
+     *
+     * @param integer|string|null $value
+     * @param mixed $default
+     * @return static|null
+     */
+    public static function letsTryFrom(int|string|null $value = null, mixed $default = null): ?static
+    {
+        return static::tryFrom($value) ?? $default;
+    }
+
+    /**
      * Get label
      */
     public function getLabel(): string

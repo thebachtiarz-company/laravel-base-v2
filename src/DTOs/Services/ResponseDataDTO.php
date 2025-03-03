@@ -42,4 +42,15 @@ class ResponseDataDTO extends AbstractDTO
             ResponseInterface::DATA => $this->data,
         ];
     }
+
+    public function fromArray(array $data): static
+    {
+        $this->{ResponseInterface::CONDITION} ??= ResponseConditionEnum::tryFrom(@$data[ResponseInterface::CONDITION]) ?? ResponseConditionEnum::FALSE;
+        $this->{ResponseInterface::STATUS} ??= ResponseStatusEnum::tryFrom(@$data[ResponseInterface::STATUS]) ?? ResponseStatusEnum::ERROR;
+        $this->{ResponseInterface::HTTP_CODE} ??= ResponseHttpCodeEnum::tryFrom(@$data[ResponseInterface::HTTP_CODE]) ?? ResponseHttpCodeEnum::ACCEPTED;
+        $this->{ResponseInterface::MESSAGE} = @$data[ResponseInterface::MESSAGE] ?? '';
+        $this->{ResponseInterface::DATA} = @$data[ResponseInterface::DATA] ?? [];
+
+        return $this;
+    }
 }

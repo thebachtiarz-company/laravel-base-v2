@@ -21,6 +21,17 @@ abstract class AbstractDTO implements Arrayable
         return $this;
     }
 
+    /**
+     * Get only selected key
+     *
+     * @param array|string $key
+     * @return array
+     */
+    public function only(array|string $key): array
+    {
+        return collect($this->toArray())->only($key)->toArray();
+    }
+
     public function toArray()
     {
         $result = [];
